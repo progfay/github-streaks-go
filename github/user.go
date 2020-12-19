@@ -1,12 +1,14 @@
 package github
 
 import (
+	"net/http"
 	"strings"
 )
 
 // User represent GitHub User
 type User struct {
-	Name string
+	Name   string
+	client *http.Client
 }
 
 // NewUser generate initialized GitHub User struct with username
@@ -16,6 +18,7 @@ func NewUser(username string) *User {
 	}
 
 	return &User{
-		Name: username,
+		Name:   username,
+		client: new(http.Client),
 	}
 }

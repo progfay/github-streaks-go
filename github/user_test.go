@@ -1,10 +1,15 @@
 package github_test
 
 import (
-	"reflect"
 	"testing"
 
+	"github.com/google/go-cmp/cmp"
+	"github.com/google/go-cmp/cmp/cmpopts"
 	"github.com/progfay/github-streaks/github"
+)
+
+var (
+	ignoreUserUnexported = cmpopts.IgnoreUnexported(github.User{})
 )
 
 func Test_NewUser(t *testing.T) {
@@ -30,8 +35,9 @@ func Test_NewUser(t *testing.T) {
 	} {
 		t.Run(testcase.title, func(t *testing.T) {
 			user := github.NewUser(testcase.in)
-			if !reflect.DeepEqual(*user, *testcase.want) {
-				t.Errorf("want user %#v, got %#v", *testcase.want, *user)
+
+			if !cmp.Equal(*testcase.want, *user, ignoreUserUnexported) {
+				t.Errorf("- expect\t+ actual\n%s", cmp.Diff(*testcase.want, *user, ignoreUserUnexported))
 				return
 			}
 		})
