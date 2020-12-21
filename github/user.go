@@ -28,6 +28,14 @@ func NewUser(username string) *User {
 	}
 }
 
+// NewUserWithroundTripper generate initialized GitHub User struct with username and roundTripper
+func NewUserWithroundTripper(username string, roundTripper http.RoundTripper) *User {
+	user := NewUser(username)
+	user.client.Transport = roundTripper
+
+	return user
+}
+
 func (user *User) newGetRequest(url string) (*http.Request, error) {
 	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
