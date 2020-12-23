@@ -9,6 +9,18 @@ import (
 	"net/url"
 )
 
+var (
+	infoEndpointURL *url.URL
+)
+
+func init() {
+	var err error
+	infoEndpointURL, err = url.Parse("https://api.github.com")
+	if err != nil {
+		panic(err)
+	}
+}
+
 // UserInfo represent  information of GitHub User
 type UserInfo struct {
 	CreatedAt string `json:"created_at"`
@@ -16,7 +28,13 @@ type UserInfo struct {
 
 // GetInfo fetch GitHub User Information
 func (user *User) GetInfo() (*UserInfo, error) {
-	req, err := user.newGetRequest(fmt.Sprintf("https://api.github.com/users/%s", url.PathEscape(user.Name)))
+	return user.GetInfoWithCustomEndpoint(*infoEndpointURL)
+}
+
+// GetInfoWithCustomEndpoint fetch GitHub User Information from specific endpoint
+func (user *User) GetInfoWithCustomEndpoint(endpoint url.URL) (*UserInfo, error) {
+	endpoint.Path = fmt.Sprintf("/users/%s", url.PathEscape(user.Name))
+	req, err := user.newGetRequest(endpoint.String())
 	if err != nil {
 		return nil, err
 	}
@@ -28,6 +46,9 @@ func (user *User) GetInfo() (*UserInfo, error) {
 	defer res.Body.Close()
 	defer io.Copy(ioutil.Discard, res.Body)
 
+	if res.StatusCode == http.StatusNotFound {
+		return nil, ErrUserNotFound
+	}
 	if res.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("fail http request: %q", res.Status)
 	}

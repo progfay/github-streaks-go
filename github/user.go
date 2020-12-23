@@ -7,7 +7,6 @@ import (
 
 const (
 	userAgent = "@progfay/github-streaks"
-	endpoint  = "https://github.com"
 )
 
 // User represent GitHub User
