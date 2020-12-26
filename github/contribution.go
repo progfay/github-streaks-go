@@ -29,20 +29,19 @@ type Contribution struct {
 	Count int
 }
 
-// GetInfo fetch GitHub User Information
-func (user *User) GetContributions(year string) ([]Contribution, error) {
-	return user.GetContributionsWithCustomEndpoint(*contributionsEndpointURL, year)
+// GetAnnualContributions fetch user's contributions of specific year
+func (user *User) GetAnnualContributions(year string) ([]Contribution, error) {
+	return user.GetAnnualContributionsWithCustomEndpoint(*contributionsEndpointURL, year)
 }
 
-// GetInfoWithCustomEndpoint fetch GitHub User Information from specific endpoint
-func (user *User) GetContributionsWithCustomEndpoint(endpoint url.URL, year string) ([]Contribution, error) {
+// GetAnnualContributionsWithCustomEndpoint fetch user's contributions of specific year from specific endpoint
+func (user *User) GetAnnualContributionsWithCustomEndpoint(endpoint url.URL, year string) ([]Contribution, error) {
 	endpoint.Path = fmt.Sprintf("/users/%s/contributions", url.PathEscape(user.Name))
 	query := url.Values{
 		"from": []string{fmt.Sprintf("%s-12-01", year)},
 		"to":   []string{fmt.Sprintf("%s-12-31", year)},
 	}
 	endpoint.RawQuery = query.Encode()
-	fmt.Println(endpoint.String())
 	req, err := user.newGetRequest(endpoint.String())
 	if err != nil {
 		return nil, err
