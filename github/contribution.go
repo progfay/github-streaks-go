@@ -25,8 +25,8 @@ func init() {
 
 // Contribution represent daily contribution information
 type Contribution struct {
-	Date  string
-	Count int
+	Date  string `json:"date"`
+	Count int    `json:"count"`
 }
 
 // GetAnnualContributions fetch user's contributions of specific year
