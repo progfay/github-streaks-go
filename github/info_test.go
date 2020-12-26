@@ -14,12 +14,12 @@ func Test_GetInfo(t *testing.T) {
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case "/users/progfay":
-			http.ServeFile(w, r, "data/users/progfay.json")
+			http.ServeFile(w, r, "data/info/progfay.json")
 			return
 
 		case "/users/not-exists":
 			w.WriteHeader(http.StatusNotFound)
-			http.ServeFile(w, r, "data/users/not-exists.json")
+			http.ServeFile(w, r, "data/info/not-exists.json")
 			return
 		}
 	}))
