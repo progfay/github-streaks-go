@@ -2,6 +2,7 @@ package github_test
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
@@ -11,6 +12,8 @@ import (
 	"github.com/google/go-cmp/cmp"
 	"github.com/progfay/github-streaks/github"
 )
+
+const year = "2020"
 
 type snapshot struct {
 	Contributions []github.Contribution `json:"contributions"`
@@ -29,8 +32,8 @@ func init() {
 
 func Test_GetAnnualContributions(t *testing.T) {
 	var wantQuery = url.Values{
-		"from": []string{"2020-12-01"},
-		"to":   []string{"2020-12-31"},
+		"from": []string{fmt.Sprintf("%s-12-01", year)},
+		"to":   []string{fmt.Sprintf("%s-12-31", year)},
 	}
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		q := r.URL.Query()
@@ -62,15 +65,24 @@ func Test_GetAnnualContributions(t *testing.T) {
 
 	for _, testcase := range []struct {
 		title string
-		in    string
-		want  struct {
+		in    struct {
+			user string
+			year string
+		}
+		want struct {
 			contributions []github.Contribution
 			err           error
 		}
 	}{
 		{
 			title: "exists user",
-			in:    "progfay",
+			in: struct {
+				user string
+				year string
+			}{
+				user: "progfay",
+				year: year,
+			},
 			want: struct {
 				contributions []github.Contribution
 				err           error
@@ -81,7 +93,13 @@ func Test_GetAnnualContributions(t *testing.T) {
 		},
 		{
 			title: "not exists user",
-			in:    "not-exists",
+			in: struct {
+				user string
+				year string
+			}{
+				user: "not-exists",
+				year: year,
+			},
 			want: struct {
 				contributions []github.Contribution
 				err           error
@@ -92,9 +110,9 @@ func Test_GetAnnualContributions(t *testing.T) {
 		},
 	} {
 		t.Run(testcase.title, func(t *testing.T) {
-			user := github.NewUser(testcase.in)
+			user := github.NewUser(testcase.in.user)
 
-			got, err := user.GetAnnualContributionsWithCustomEndpoint(*endpoint, "2020")
+			got, err := user.GetAnnualContributionsWithCustomEndpoint(*endpoint, testcase.in.year)
 			if err != testcase.want.err {
 				t.Errorf("want error %v, got %v", testcase.want.err, err)
 				return
